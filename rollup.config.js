@@ -9,7 +9,9 @@ if (!process.env.TARGET) {
 }
 
 const masterVersion = require('./package.json').version
+// * 获取 packages 目录绝对地址: /packages
 const packagesDir = path.resolve(__dirname, 'packages')
+// * 默认目标地址: /packages/vue
 const packageDir = path.resolve(packagesDir, process.env.TARGET)
 const resolve = p => path.resolve(packageDir, p)
 const pkg = require(resolve(`package.json`))
@@ -117,7 +119,7 @@ function createConfig(format, output, plugins = []) {
   // it also seems to run into weird issues when checking multiple times
   // during a single build.
   hasTSChecked = true
-
+  // ! 入口文件
   let entryFile = /runtime$/.test(format) ? `src/runtime.ts` : `src/index.ts`
 
   // the compat build needs both default AND named exports. This will cause
