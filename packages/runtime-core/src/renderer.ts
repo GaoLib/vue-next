@@ -317,7 +317,7 @@ function baseCreateRenderer(
   createHydrationFns: typeof createHydrationFunctions
 ): HydrationRenderer
 
-// implementation
+// ! 实现 implementation
 function baseCreateRenderer(
   options: RendererOptions,
   createHydrationFns?: typeof createHydrationFunctions
@@ -420,6 +420,7 @@ function baseCreateRenderer(
             optimized
           )
         } else if (shapeFlag & ShapeFlags.COMPONENT) {
+          // ! 初始化流程走这里
           processComponent(
             n1,
             n2,
@@ -1223,6 +1224,7 @@ function baseCreateRenderer(
       if (__DEV__) {
         startMeasure(instance, `init`)
       }
+      // * 相当于vue2中_init()
       setupComponent(instance)
       if (__DEV__) {
         endMeasure(instance, `init`)
@@ -1243,6 +1245,7 @@ function baseCreateRenderer(
       return
     }
 
+    // ! 安装渲染函数副作用: 启动首次patch以及更新函数安装
     setupRenderEffect(
       instance,
       initialVNode,
@@ -1303,6 +1306,7 @@ function baseCreateRenderer(
     isSVG,
     optimized
   ) => {
+    // * 只要 effect 中的响应式数据变化，更新函数自动执行
     const componentUpdateFn = () => {
       if (!instance.isMounted) {
         let vnodeHook: VNodeHook | null | undefined
@@ -2335,7 +2339,7 @@ function baseCreateRenderer(
 
   return {
     render,
-    hydrate,
+    hydrate,  // 用于ssr
     createApp: createAppAPI(render, hydrate)
   }
 }
