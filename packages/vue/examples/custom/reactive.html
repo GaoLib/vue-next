@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reactive</title>
+  <script src="../../dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- <p>{{ state.counter }}</p> -->
+    <p @click="add">{{ counter }}</p>
+    <p @click="add2">{{ counter2 }}</p>
+  </div>
+  <script>
+    const { createApp, reactive, ref, toRefs } = Vue
+    const app = createApp({
+      setup() {
+        // state 是 Proxy 对象，因此是响应式的
+        const state = reactive({
+          counter: 1,
+        })
+
+        // 单值响应式
+        const counter2 = ref(2)
+        // return { state, counter }
+
+        
+        // state 数据变化事件
+        function add() {
+          state.counter ++
+        }
+
+        // ref 单值变量的事件
+        function add2() {
+          counter2.value ++
+        }
+         
+        return { ...toRefs(state), counter2, add, add2 }
+
+        // 优点：
+        // 1. 维护性，变量的定义和操作可放在一起
+        // 2. 
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
