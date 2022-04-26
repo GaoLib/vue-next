@@ -647,6 +647,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
   }
 
   if (dataOptions) {
+    // ! data 必须为函数，否则报错
     if (__DEV__ && !isFunction(dataOptions)) {
       warn(
         `The data option must be a function. ` +
@@ -664,6 +665,7 @@ export function applyOptions(instance: ComponentInternalInstance) {
     if (!isObject(data)) {
       __DEV__ && warn(`data() should return an object.`)
     } else {
+      // ! reactive 实现响应式
       instance.data = reactive(data)
       if (__DEV__) {
         for (const key in data) {

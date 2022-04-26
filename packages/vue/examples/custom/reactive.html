@@ -14,34 +14,55 @@
     <p @click="add2">{{ counter2 }}</p>
   </div>
   <script>
-    const { createApp, reactive, ref, toRefs } = Vue
-    const app = createApp({
+    const { createApp, reactive, ref, toRefs, onMounted } = Vue
+
+    function useCounter() {
+      // state 是 Proxy 对象，因此是响应式的
+      const state = reactive({
+        counter: 1,
+      })
+      // state 数据变化事件
+      function add() {
+        state.counter ++
+      }
+
+      onMounted(() => {
+        state.counter = 10
+      })
+
+      return { state, add }
+    }
+
+    createApp({
+      // setup(props, {emit, slots, attrs})
       setup() {
-        // state 是 Proxy 对象，因此是响应式的
-        const state = reactive({
-          counter: 1,
-        })
+
+        const { state, add } = useCounter()
 
         // 单值响应式
         const counter2 = ref(2)
         // return { state, counter }
 
-        
-        // state 数据变化事件
-        function add() {
-          state.counter ++
-        }
-
         // ref 单值变量的事件
         function add2() {
           counter2.value ++
         }
-         
+
+        onMounted(() => {
+          counter2.value = 5
+        })
+        
+
+        // 返回函数时
+        // return () => {
+        //  jsx
+        // }
+
         return { ...toRefs(state), counter2, add, add2 }
 
         // 优点：
         // 1. 维护性，变量的定义和操作可放在一起
-        // 2. 
+        // 2. 复用性
       }
     }).mount('#app')
   </script>

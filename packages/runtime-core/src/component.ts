@@ -631,11 +631,13 @@ function setupStatefulComponent(
   instance.accessCache = Object.create(null)
   // 1. create public instance / render proxy
   // also mark it raw so it's never observed
+  // ! proxy 为 ctx 的响应式形式，ctx相当于 Vue2 中组件实例 this
   instance.proxy = markRaw(new Proxy(instance.ctx, PublicInstanceProxyHandlers))
   if (__DEV__) {
     exposePropsOnRenderContext(instance)
   }
   // 2. call setup()
+  // ! 处理 setup
   const { setup } = Component
   if (setup) {
     const setupContext = (instance.setupContext =
@@ -643,6 +645,7 @@ function setupStatefulComponent(
 
     setCurrentInstance(instance)
     pauseTracking()
+    // ! 调用 setup, 同时添加参数
     const setupResult = callWithErrorHandling(
       setup,
       instance,
@@ -652,6 +655,7 @@ function setupStatefulComponent(
     resetTracking()
     unsetCurrentInstance()
 
+    // ! setup 返回值可能为Promise
     if (isPromise(setupResult)) {
       setupResult.then(unsetCurrentInstance, unsetCurrentInstance)
       if (isSSR) {
@@ -695,6 +699,7 @@ export function handleSetupResult(
   setupResult: unknown,
   isSSR: boolean
 ) {
+  // ! setup 如果返回了函数
   if (isFunction(setupResult)) {
     // setup returned an inline render function
     if (__SSR__ && (instance.type as ComponentOptions).__ssrInlineRender) {
@@ -702,6 +707,7 @@ export function handleSetupResult(
       // set it as ssrRender instead.
       instance.ssrRender = setupResult
     } else {
+      // ! 直接赋值给render
       instance.render = setupResult as InternalRenderFunction
     }
   } else if (isObject(setupResult)) {
@@ -716,6 +722,7 @@ export function handleSetupResult(
     if (__DEV__ || __FEATURE_PROD_DEVTOOLS__) {
       instance.devtoolsRawSetupState = setupResult
     }
+    // ! setup 如果返回对象，作为渲染函数上下文
     instance.setupState = proxyRefs(setupResult)
     if (__DEV__) {
       exposeSetupStateOnRenderContext(instance)
@@ -727,6 +734,7 @@ export function handleSetupResult(
       }`
     )
   }
+  // 主要处理其他选项
   finishComponentSetup(instance, isSSR)
 }
 
@@ -821,10 +829,11 @@ export function finishComponentSetup(
     }
   }
 
-  // support for 2.x options
+  // ! support for 2.x options
   if (__FEATURE_OPTIONS_API__ && !(__COMPAT__ && skipOptions)) {
     setCurrentInstance(instance)
     pauseTracking()
+    // ! 处理 options
     applyOptions(instance)
     resetTracking()
     unsetCurrentInstance()
